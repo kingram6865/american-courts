@@ -49,7 +49,18 @@ function proccessHTML(fragment){
   const listitems = dom.window.document.getElementsByTagName('li')
   
   for (let x of listitems) {
-    console.log(`${x.getElementsByTagName('a')[0].getAttribute('href')} -- ${x.textContent}`)
+    const anchors = x.getElementsByTagName('a').length
+    if (anchors === 2){
+      console.log(`${x.getElementsByTagName('a')[0].getAttribute('href')} -- ${x.getElementsByTagName('a')[1].getAttribute('href')} -- ${x.textContent}`)
+    } else if (anchors === 3) {
+      console.log(`${x.getElementsByTagName('a')[0].getAttribute('href')} -- ${x.getElementsByTagName('a')[1].getAttribute('href')} -- ${x.getElementsByTagName('a')[2].getAttribute('href')} -- ${x.textContent}`)
+    } else {
+      console.log(`${x.getElementsByTagName('a')[0].getAttribute('href')} -- ${x.textContent}`)
+    }
+
+
+    // console.log(`${x.getElementsByTagName('a')[0].getAttribute('href')} -- ${x.getElementsByTagName('a')[1].getAttribute('href')} -- ${x.textContent}`)
+    // console.log(x.getElementsByTagName('a').length)
   }
 /*
   for (let item of doclist) {
