@@ -30,38 +30,80 @@ function proccessHTML(fragment, source){
   for (let x of listitems) {
     const record = {
       case_name: '',
+      href_note: '',
       case_links: [],
       volume: source
     }
 
-    let tester = x.getElementsByTagName('a')[0].getAttribute('href')
-
-    if (/_v\./.test(tester)) {
-      const children = x.getElementsByTagName('a')
-      record.case_name = x.textContent
-      
-      if (children.length > 1) {
-        record.case_links = [ ...children ].map(item => `${url_prefix}${item.getAttribute('href')}`)
-      } else {
-        record.case_links.push(url_prefix + x.getElementsByTagName('a')[0].getAttribute('href'))
-      }
-
+    // console.log(`${x.outerHTML}`)
+    let tester = (x.getElementsByTagName('a').length > 0) ? x : "<p></p>"
+    // console.log(`${tester.outerHTML}`)
+    
+    if (/_v\./.test(tester.outerHTML)) {
+      // console.log(tester.outerHTML)
+      console.log("Data")
       counter++
-      // console.log(record.case_name)
-      // insertData(record)
+    //   console.log(`[tester]: ${tester.outerHTML}`)
+    //   console.log("==============")
+    //   const children = x.getElementsByTagName('a')
+    //   record.case_name = x.textContent
+      
+    //   if (children.length > 1) {
+    //     record.case_links = [ ...children ].map(item => `${url_prefix}${item.getAttribute('href')}`)
+    //   } else {
+    //     record.case_links.push(url_prefix + x.getElementsByTagName('a')[0].getAttribute('href'))
+    //   }
+
+    //   // console.log(record.case_name)
+    //   // insertData(record)
+    // } else {
+    //   console.log(`[branch 2] ${x.outerHTML}`)
     }
   }
+
+  console.log(`Counter says there are ${counter} case references to process across ${files.length} Volumes`)
 }
+
+// function processData(input) {
+//   let rawdata = fs.readFileSync(input)
+//   let wiki = JSON.parse(rawdata)
+
+//   metadata.title = wiki.parse['title']
+//   metadata.externallinks = wiki.parse['externallinks']
+
+//   proccessHTML(wiki.parse['text'], wiki.parse['title'])
+// }
 
 function processData(input) {
-  let rawdata = fs.readFileSync(input)
-  let wiki = JSON.parse(rawdata)
+  // let rawdata = fs.readFileSync(input)
+  let data = ''
+  let readStream = fs.createReadStream(input,'utf8')
 
-  metadata.title = wiki.parse['title']
-  metadata.externallinks = wiki.parse['externallinks']
+  readStream.on('data', (chunk) => {
+    data += chunk
+  }).on('end', () => {
+    // console.log(JSON.parse(data))
+    let wiki = JSON.parse(data)
+    // console.log(wiki)
+    metadata.title = wiki.parse['title']
+    metadata.externallinks = wiki.parse['externallinks']
+    // console.log(metadata.title)
+    // console.log(wiki.parse['text'])
+    console.log(`Processing ${input} data`)
+    proccessHTML(wiki.parse['text'], wiki.parse['title'])
+    console.log("========================")
+  })
 
-  proccessHTML(wiki.parse['text'], wiki.parse['title'])
+  // let wiki = JSON.parse(rawdata)
+
+  // metadata.title = wiki.parse['title']
+  // metadata.externallinks = wiki.parse['externallinks']
+
+  // proccessHTML(wiki.parse['text'], wiki.parse['title'])
 }
+
+
+
 
 function insertData(data) {
   // const input = data.map
@@ -88,6 +130,12 @@ function execute() {
 execute()
 // processData(files[0])
 // files.forEach(item => console.log(`processData(${item})`))
-files.forEach(item => processData(item))
+files.sort
+console.log(`Processing ${files.length} files.`)
+files.forEach(item => {
+  console.log(`Sending ${item} to be processed ==========`)
+  processData(item)
+  console.log("=============================")
+})
 // files.forEach(item => console.log(item))
-console.log(counter)
+// console.log(counter)
