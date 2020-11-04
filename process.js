@@ -34,20 +34,22 @@ function proccessHTML(fragment, source){
       case_links: [],
       volume: source
     }
+
     let tester = x.getElementsByTagName('a')[0].getAttribute('href')
+
     if (/_v\./.test(tester)) {
-      const anchors = x.getElementsByTagName('a').length
+      const children = x.getElementsByTagName('a')
+      // record.case_links = x.getElementsByTagName('a').map((item, index) => item[index].getAttribute('href'))
       record.case_name = x.textContent
-      if (anchors > 1) {
-        for (let i=0; i <= anchors)
-        console.log(x.getElementsByTagName('a')[0].getAttribute('href'), x.getElementsByTagName('a')[1].getAttribute('href'))
-        // x.getElementsByTagName('a').map((item, index) => {
-        //   record.case_links.push(url_prefix + item[index].getAttribute('href'))
-        // })
+      
+      if (children.length > 1) {
+        record.case_links = [ ...children ].map(item => `${url_prefix}${item.getAttribute('href')}`)
       } else {
         record.case_links.push(url_prefix + x.getElementsByTagName('a')[0].getAttribute('href'))
       }
+
       insertData(record)
+
       // if (anchors === 2){
       //   record.case_name = x.textContent
       //   record.case_links.push(url_prefix + x.getElementsByTagName('a')[0].getAttribute('href'))
