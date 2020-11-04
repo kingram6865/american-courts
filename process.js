@@ -13,6 +13,7 @@ const metadata = {
 }
 const results = []
 const url_prefix = "https://en.wikipedia.org"
+let counter = 0
 
 /**
  * If link is red:
@@ -21,8 +22,6 @@ const url_prefix = "https://en.wikipedia.org"
  * If link is blue
  * https://en.wikipedia.org/wiki/Respublica_v._De_Longchamps
  */
-
-
 
 function proccessHTML(fragment, source){
   const dom = new JSDOM(fragment["*"])
@@ -39,7 +38,6 @@ function proccessHTML(fragment, source){
 
     if (/_v\./.test(tester)) {
       const children = x.getElementsByTagName('a')
-      // record.case_links = x.getElementsByTagName('a').map((item, index) => item[index].getAttribute('href'))
       record.case_name = x.textContent
       
       if (children.length > 1) {
@@ -48,38 +46,11 @@ function proccessHTML(fragment, source){
         record.case_links.push(url_prefix + x.getElementsByTagName('a')[0].getAttribute('href'))
       }
 
-      insertData(record)
-
-      // if (anchors === 2){
-      //   record.case_name = x.textContent
-      //   record.case_links.push(url_prefix + x.getElementsByTagName('a')[0].getAttribute('href'))
-      //   record.case_links.push(url_prefix + x.getElementsByTagName('a')[1].getAttribute('href'))
-      //   // console.log(`${x.getElementsByTagName('a')[0].getAttribute('href')} -- ${x.getElementsByTagName('a')[1].getAttribute('href')} -- ${x.textContent}`)
-      // // console.log(JSON.stringify(record))
-      // } else if (anchors === 3) {
-      //   record.case_name = x.textContent
-      //   record.case_links.push(url_prefix + x.getElementsByTagName('a')[0].getAttribute('href'))
-      //   record.case_links.push(url_prefix + x.getElementsByTagName('a')[1].getAttribute('href'))
-      //   record.case_links.push(url_prefix + x.getElementsByTagName('a')[2].getAttribute('href'))
-      //   // console.log(`${x.getElementsByTagName('a')[0].getAttribute('href')} -- ${x.getElementsByTagName('a')[1].getAttribute('href')} -- ${x.getElementsByTagName('a')[2].getAttribute('href')} -- ${x.textContent}`)
-      // // console.log(JSON.stringify(record))
-      // } else {
-      //   record.case_name = x.textContent
-      //   record.case_links.push(url_prefix + x.getElementsByTagName('a')[0].getAttribute('href'))
-      //   // console.log(`${x.getElementsByTagName('a')[0].getAttribute('href')} -- ${x.textContent}`)
-      // // console.log(JSON.stringify(record))
+      counter++
+      // console.log(record.case_name)
       // insertData(record)
-      // }
-
-      // console.log(JSON.stringify(record))
-      // results.push(record)
     }
-    // console.log(JSON.stringify(record))
-    // console.log(`${x.getElementsByTagName('a')[0].getAttribute('href')} -- ${x.getElementsByTagName('a')[1].getAttribute('href')} -- ${x.textContent}`)
-    // console.log(x.getElementsByTagName('a').length)
   }
-
-  // console.log(`Results list size: ${results.length}`)
 }
 
 function processData(input) {
@@ -94,13 +65,11 @@ function processData(input) {
 
 function insertData(data) {
   // const input = data.map
-  const conn = mysql.createConnection(datasource)
+  // const conn = mysql.createConnection(datasource)
   let sql = "INSERT INTO supreme_court (case_name, url, volume) VALUES ?,?";
   // async conn.query(sql, )
   console.log(data)
 }
-
-
 
 // =================================
 function execute() {
@@ -115,6 +84,10 @@ function execute() {
     }
   })
 }
-// console.log(files[0])
+
 execute()
-processData(files[0])
+// processData(files[0])
+// files.forEach(item => console.log(`processData(${item})`))
+files.forEach(item => processData(item))
+// files.forEach(item => console.log(item))
+console.log(counter)
