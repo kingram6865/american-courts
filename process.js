@@ -41,8 +41,12 @@ function proccessHTML(fragment, source){
     
     if (/_v\./.test(tester.outerHTML)) {
       // console.log(tester.outerHTML)
-      console.log("Data")
+      // console.log("Data")
       counter++
+      [...tester.getElementsByTagName('a')].forEach(item => {
+        console.log(`[${item.outerHTML}] ${item.getAttribute('href')}`)
+      
+      })
     //   console.log(`[tester]: ${tester.outerHTML}`)
     //   console.log("==============")
     //   const children = x.getElementsByTagName('a')
@@ -61,7 +65,7 @@ function proccessHTML(fragment, source){
     }
   }
 
-  console.log(`Counter says there are ${counter} case references to process across ${files.length} Volumes`)
+  // console.log(`Counter says there are ${counter} case references to process across ${files.length} Volumes`)
 }
 
 // function processData(input) {
@@ -89,9 +93,9 @@ function processData(input) {
     metadata.externallinks = wiki.parse['externallinks']
     // console.log(metadata.title)
     // console.log(wiki.parse['text'])
-    console.log(`Processing ${input} data`)
+    // console.log(`Processing ${input} data`)
     proccessHTML(wiki.parse['text'], wiki.parse['title'])
-    console.log("========================")
+    // console.log("========================")
   })
 
   // let wiki = JSON.parse(rawdata)
@@ -133,9 +137,9 @@ execute()
 files.sort
 console.log(`Processing ${files.length} files.`)
 files.forEach(item => {
-  console.log(`Sending ${item} to be processed ==========`)
+  // console.log(`Sending ${item} to be processed ==========`)
   processData(item)
-  console.log("=============================")
+  // console.log("=============================")
 })
 // files.forEach(item => console.log(item))
 // console.log(counter)
