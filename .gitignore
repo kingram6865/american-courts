@@ -1,2 +1,5 @@
 node_modules
 services/localconfig.js
+errors
+misc
+sc

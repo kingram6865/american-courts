@@ -1,10 +1,10 @@
-const directory = './sc'
+const directory = './sc' // location of json files containing html to read in
 const path = require('path')
 const fs = require('fs')
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom;
 const mysql = require('mysql')
-const datasource = require('./services/config')
+const datasource = require('./services/localconfig') // copy from exampleconfig.js
 const files = []
 const metadata = {
   title: '',
