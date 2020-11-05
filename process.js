@@ -68,7 +68,7 @@ function proccessHTML(fragment, source){
           // (item.getAttribute('title')) ? record.href_note = item.getAttribute('title') : null        
         })
 
-        console.log(record)
+        console.log(`[${counter}] ${JSON.stringify(record)}`)
       }
 
     //   console.log(`[tester]: ${tester.outerHTML}`)
