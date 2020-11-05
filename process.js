@@ -43,10 +43,34 @@ function proccessHTML(fragment, source){
       // console.log(tester.outerHTML)
       // console.log("Data")
       counter++
-      [...tester.getElementsByTagName('a')].forEach(item => {
-        console.log(`[${item.outerHTML}] ${item.getAttribute('href')}`)
+      record.case_name = x.textContent;
+      // if (counter > 24 && counter < 30){
+      //   console.log(" ")
+      //   console.log(`[${counter}] ${x.outerHTML}`)  
+      //   console.log(" ")
+      // } 
+        // console.log(`[${counter}] ${JSON.stringify(record)}`)
       
-      })
+
+      if (tester.getElementsByTagName('a')) {
+        [...tester.getElementsByTagName('a')].forEach(item => {
+          // console.log(`[${counter}][${item.outerHTML}] ${item.getAttribute('href')}`)
+          if (item.hasAttribute('href')){
+            // console.log(`[${counter}] ${item.getAttribute('href')}`)
+            record.case_links.push(`${url_prefix}${item.getAttribute('href')}`)
+          }
+
+          if (item.hasAttribute('title')){
+            // console.log(`[${counter}] ${item.getAttribute('href')}`)
+            record.href_note = item.getAttribute('title')
+          }
+          // (item.hasAttribute('href')) ? record.case_links.push(item.getAttribute('href')) : null
+          // (item.getAttribute('title')) ? record.href_note = item.getAttribute('title') : null        
+        })
+
+        console.log(record)
+      }
+
     //   console.log(`[tester]: ${tester.outerHTML}`)
     //   console.log("==============")
     //   const children = x.getElementsByTagName('a')
