@@ -4,7 +4,7 @@ const fs = require('fs')
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom;
 const mysql = require('mysql')
-const datasource = require('./services/localconfig') // copy from exampleconfig.js
+const datasource = require('./services/localconfig'); // copy from exampleconfig.js
 const files = []
 const metadata = {
   title: '',
@@ -32,113 +32,87 @@ function proccessHTML(fragment, source){
       case_name: '',
       href_note: '',
       case_links: [],
-      volume: source
+      volume: source.match(/[vV]olume.*$/)
     }
 
-    // console.log(`${x.outerHTML}`)
     let tester = (x.getElementsByTagName('a').length > 0) ? x : "<p></p>"
-    // console.log(`${tester.outerHTML}`)
     
     if (/_v\./.test(tester.outerHTML)) {
-      // console.log(tester.outerHTML)
-      // console.log("Data")
       counter++
       record.case_name = x.textContent;
-      // if (counter > 24 && counter < 30){
-      //   console.log(" ")
-      //   console.log(`[${counter}] ${x.outerHTML}`)  
-      //   console.log(" ")
-      // } 
-        // console.log(`[${counter}] ${JSON.stringify(record)}`)
-      
 
       if (tester.getElementsByTagName('a')) {
         [...tester.getElementsByTagName('a')].forEach(item => {
-          // console.log(`[${counter}][${item.outerHTML}] ${item.getAttribute('href')}`)
+
           if (item.hasAttribute('href')){
-            // console.log(`[${counter}] ${item.getAttribute('href')}`)
             record.case_links.push(`${url_prefix}${item.getAttribute('href')}`)
           }
 
           if (item.hasAttribute('title')){
-            // console.log(`[${counter}] ${item.getAttribute('href')}`)
             record.href_note = item.getAttribute('title')
           }
-          // (item.hasAttribute('href')) ? record.case_links.push(item.getAttribute('href')) : null
-          // (item.getAttribute('title')) ? record.href_note = item.getAttribute('title') : null        
         })
 
-        console.log(`[${counter}] ${JSON.stringify(record)}`)
+        // console.log(`[${counter}] ${JSON.stringify(record)}`)
+        // if (tester.getElementsByTagName('a').length > 1) {
+          insertData(record)
+        // }
       }
-
-    //   console.log(`[tester]: ${tester.outerHTML}`)
-    //   console.log("==============")
-    //   const children = x.getElementsByTagName('a')
-    //   record.case_name = x.textContent
-      
-    //   if (children.length > 1) {
-    //     record.case_links = [ ...children ].map(item => `${url_prefix}${item.getAttribute('href')}`)
-    //   } else {
-    //     record.case_links.push(url_prefix + x.getElementsByTagName('a')[0].getAttribute('href'))
-    //   }
-
-    //   // console.log(record.case_name)
-    //   // insertData(record)
-    // } else {
-    //   console.log(`[branch 2] ${x.outerHTML}`)
     }
   }
-
-  // console.log(`Counter says there are ${counter} case references to process across ${files.length} Volumes`)
 }
 
-// function processData(input) {
-//   let rawdata = fs.readFileSync(input)
-//   let wiki = JSON.parse(rawdata)
-
-//   metadata.title = wiki.parse['title']
-//   metadata.externallinks = wiki.parse['externallinks']
-
-//   proccessHTML(wiki.parse['text'], wiki.parse['title'])
-// }
-
 function processData(input) {
-  // let rawdata = fs.readFileSync(input)
   let data = ''
   let readStream = fs.createReadStream(input,'utf8')
 
   readStream.on('data', (chunk) => {
     data += chunk
   }).on('end', () => {
-    // console.log(JSON.parse(data))
     let wiki = JSON.parse(data)
-    // console.log(wiki)
+
     metadata.title = wiki.parse['title']
     metadata.externallinks = wiki.parse['externallinks']
-    // console.log(metadata.title)
-    // console.log(wiki.parse['text'])
-    // console.log(`Processing ${input} data`)
+
     proccessHTML(wiki.parse['text'], wiki.parse['title'])
-    // console.log("========================")
+
   })
-
-  // let wiki = JSON.parse(rawdata)
-
-  // metadata.title = wiki.parse['title']
-  // metadata.externallinks = wiki.parse['externallinks']
-
-  // proccessHTML(wiki.parse['text'], wiki.parse['title'])
 }
 
-
-
-
 function insertData(data) {
-  // const input = data.map
-  // const conn = mysql.createConnection(datasource)
-  let sql = "INSERT INTO supreme_court (case_name, url, volume) VALUES ?,?";
-  // async conn.query(sql, )
-  console.log(data)
+  const conn = mysql.createConnection(datasource)
+
+  // return new Promise (() => {
+  //     conn.query('SELECT count(*) FROM torrents_downloaded', (err,rows) => {
+  //     if(err) throw err;
+    
+  //     console.log('Data received from Db:');
+  //     console.log(rows);
+  //   });
+  // })  
+
+    // conn.connect(() => {
+  //   // let sql = "INSERT INTO supreme_court (case_name, href_note, url, volume) VALUES ?, ?, ?, ?";
+    let sql = "INSERT INTO supreme_court (case_name) VALUES ('Test')"
+    sql = mysql.format(sql)
+
+
+  return new Promise(() => {conn.query(sql, (error, results, fields) => {
+      if (error) return error
+      console.log(JSON.stringify(results))
+    })
+  })
+  // })
+
+  // sql = mysql.format(sql,[data.case_name, data.href_note, `${data.case_links}`, data.volume])
+  // // console.log(sql)
+  // conn.query(sql, [data.case_name, data.href_note, `${data.case_links}`, data.volume], (error, results, fields) => {
+  //   if (error) return error
+  // })
+
+
+  // console.log(JSON.stringify(data))
+
 }
 
 // =================================
@@ -156,14 +130,15 @@ function execute() {
 }
 
 execute()
-// processData(files[0])
-// files.forEach(item => console.log(`processData(${item})`))
+
 files.sort
 console.log(`Processing ${files.length} files.`)
-files.forEach(item => {
-  // console.log(`Sending ${item} to be processed ==========`)
-  processData(item)
-  // console.log("=============================")
-})
-// files.forEach(item => console.log(item))
-// console.log(counter)
+// files.forEach(item => {
+//   processData(item)
+// })
+
+// for (let i=0; i < files.length; i++){
+//   processData(files[i])
+// }
+
+processData(files[1])
