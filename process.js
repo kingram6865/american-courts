@@ -32,7 +32,7 @@ function proccessHTML(fragment, source){
       case_name: '',
       href_note: '',
       case_links: [],
-      volume: source.match(/[vV]olume.*$/)
+      volume: source.match(/\d+.*$/)
     }
 
     let tester = (x.getElementsByTagName('a').length > 0) ? x : "<p></p>"
@@ -81,28 +81,26 @@ function processData(input) {
 
 function insertData(data) {
   const conn = mysql.createConnection(datasource)
+  const values = [data.case_name, data.href_note, `${data.case_links}`, data.volume]
+  let sql = "INSERT INTO supreme_court (case_name, href_note, url, volume) VALUES (?, ?, ?, ?)";
+  //sql = mysql.format(sql,[data.case_name, data.href_note, `${data.case_links}`, data.volume])
 
-  // return new Promise (() => {
-  //     conn.query('SELECT count(*) FROM torrents_downloaded', (err,rows) => {
-  //     if(err) throw err;
-    
-  //     console.log('Data received from Db:');
-  //     console.log(rows);
-  //   });
-  // })  
-
-    // conn.connect(() => {
-  //   // let sql = "INSERT INTO supreme_court (case_name, href_note, url, volume) VALUES ?, ?, ?, ?";
-    let sql = "INSERT INTO supreme_court (case_name) VALUES ('Test')"
-    sql = mysql.format(sql)
+  console.log(`Processing #[${counter}] ${data['case_name']}`)
+  // conn.query(sql, [values], (error, results, fields) => {
+  //       if (error) return error
+  //       console.log(JSON.stringify(results.insertId))
+  //     })
 
 
-  return new Promise(() => {conn.query(sql, (error, results, fields) => {
+  return new Promise(async () => {
+    await conn.query(sql, values, (error, results, fields) => {
       if (error) return error
       console.log(JSON.stringify(results))
     })
+    
+    conn.end()
   })
-  // })
+
 
   // sql = mysql.format(sql,[data.case_name, data.href_note, `${data.case_links}`, data.volume])
   // // console.log(sql)
@@ -112,7 +110,7 @@ function insertData(data) {
 
 
   // console.log(JSON.stringify(data))
-
+  // conn.end()
 }
 
 // =================================
@@ -133,12 +131,17 @@ execute()
 
 files.sort
 console.log(`Processing ${files.length} files.`)
-// files.forEach(item => {
-//   processData(item)
-// })
+
+files.forEach(async (item) => {
+  // console.log(`processData(${item})`)
+  await processData(item)
+})
 
 // for (let i=0; i < files.length; i++){
-//   processData(files[i])
+//   console.log(`processData(${files[i]})`)
 // }
 
-processData(files[1])
+// console.log(`processData(${files[1]})`)
+// processData(files[0])
+// processData(files[1])
+// processData(files[2])
