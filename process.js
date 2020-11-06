@@ -26,15 +26,15 @@ let counter = 0
 function proccessHTML(fragment, source){
   const dom = new JSDOM(fragment["*"])
   const listitems = dom.window.document.getElementsByTagName('li')
+  const record = {
+    case_name: '',
+    href_note: '',
+    case_links: [],
+    volume: source.match(/\d+.*$/)[0]
+  }
   
   for (let x of listitems) {
-    const record = {
-      case_name: '',
-      href_note: '',
-      case_links: [],
-      volume: source.match(/\d+.*$/)
-    }
-
+    let loopCases = []
     let tester = (x.getElementsByTagName('a').length > 0) ? x : "<p></p>"
     
     if (/_v\./.test(tester.outerHTML)) {
@@ -45,7 +45,7 @@ function proccessHTML(fragment, source){
         [...tester.getElementsByTagName('a')].forEach(item => {
 
           if (item.hasAttribute('href')){
-            record.case_links.push(`${url_prefix}${item.getAttribute('href')}`)
+            loopCases.push(`${url_prefix}${item.getAttribute('href')}`)
           }
 
           if (item.hasAttribute('title')){
@@ -55,9 +55,13 @@ function proccessHTML(fragment, source){
 
         // console.log(`[${counter}] ${JSON.stringify(record)}`)
         // if (tester.getElementsByTagName('a').length > 1) {
-          insertData(record)
-        // }
+          // }
       }
+
+      record.case_links = loopCases
+      console.log(JSON.stringify(record, null, 2))
+      console.log("  ")
+      insertData(record)
     }
   }
 }
@@ -92,9 +96,9 @@ function insertData(data) {
   //     })
 
 
-  return new Promise(async () => {
-    await conn.query(sql, values, (error, results, fields) => {
-      if (error) return error
+  return new Promise(() => {
+    conn.query(sql, values, (error, results, fields) => {
+      if (error) console.log(error)
       console.log(JSON.stringify(results))
     })
     
@@ -114,6 +118,15 @@ function insertData(data) {
 }
 
 // =================================
+
+function retrieveWikiData(){
+  const wiki_prefix = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&page='
+
+
+
+}
+
+
 function execute() {
   fs.readdirSync(directory).forEach(file => {
     if (fs.lstatSync(path.resolve(directory, file)).isDirectory()) {
