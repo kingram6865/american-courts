@@ -96,14 +96,22 @@ function insertData(data) {
   //     })
 
 
-  return new Promise(() => {
+  // return new Promise(() => {
+  //   conn.query(sql, values, (error, results, fields) => {
+  //     if (error) console.log(error)
+  //     console.log(JSON.stringify(results))
+  //   })
+    
+  //   conn.end()
+  // })
+  
     conn.query(sql, values, (error, results, fields) => {
       if (error) console.log(error)
       console.log(JSON.stringify(results))
     })
     
     conn.end()
-  })
+  
 
 
   // sql = mysql.format(sql,[data.case_name, data.href_note, `${data.case_links}`, data.volume])
