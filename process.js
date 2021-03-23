@@ -5,6 +5,8 @@ const jsdom = require('jsdom')
 const { JSDOM } = jsdom;
 const mysql = require('mysql')
 const datasource = require('./services/localconfig'); // copy from exampleconfig.js
+const {dataPool} = datasource
+const pool = mysql.createPool(dataPool)
 const files = []
 const metadata = {
   title: '',
@@ -25,6 +27,7 @@ let counter = 0
 
 function proccessHTML(fragment, source){
   const dom = new JSDOM(fragment["*"])
+  const insertList = []
   const listitems = dom.window.document.getElementsByTagName('li')
   const record = {
     case_name: '',
@@ -32,12 +35,14 @@ function proccessHTML(fragment, source){
     case_links: [],
     volume: source.match(/\d+.*$/)[0]
   }
+  let valid = 0
   
   for (let x of listitems) {
     let loopCases = []
     let tester = (x.getElementsByTagName('a').length > 0) ? x : "<p></p>"
     
     if (/_v\./.test(tester.outerHTML)) {
+      valid++
       counter++
       record.case_name = x.textContent;
 
@@ -59,11 +64,18 @@ function proccessHTML(fragment, source){
       }
 
       record.case_links = loopCases
-      console.log(JSON.stringify(record, null, 2))
-      console.log("  ")
+      // console.log(JSON.stringify(record, null, 2))
+      // console.log(`{${counter}}[${valid}] ${source.match(/\d+.*$/)[0]} ${record.case_name}`)
+      // console.log("  ")
       insertData(record)
+      // insertList.push(record)
     }
+    
+    // console.log(`There were ${valid} items in ${source}`)
   }
+  // console.log("========================================")
+  // console.log(`counter=${counter} [Line 72] insertList.length = ${insertList.length}`)
+  // console.log(`There were ${valid} items in ${source}`)
 }
 
 function processData(input) {
@@ -84,53 +96,27 @@ function processData(input) {
 }
 
 function insertData(data) {
-  const conn = mysql.createConnection(datasource)
-  const values = [data.case_name, data.href_note, `${data.case_links}`, data.volume]
-  let sql = "INSERT INTO supreme_court (case_name, href_note, url, volume) VALUES (?, ?, ?, ?)";
-  //sql = mysql.format(sql,[data.case_name, data.href_note, `${data.case_links}`, data.volume])
+  console.log(`insert ${data.case_name}`)
+  pool.getConnection((err, connection) => {
+    if (err) console.log(err);
+    const values = [data.case_name, data.href_note, `${data.case_links}`, data.volume]
+    let sql = "INSERT INTO supreme_court (case_name, href_note, url, volume) VALUES (?, ?, ?, ?)";
+    //sql = mysql.format(sql,[data.case_name, data.href_note, `${data.case_links}`, data.volume])
 
-  console.log(`Processing #[${counter}] ${data['case_name']}`)
-  // conn.query(sql, [values], (error, results, fields) => {
-  //       if (error) return error
-  //       console.log(JSON.stringify(results.insertId))
-  //     })
-
-
-  // return new Promise(() => {
-  //   conn.query(sql, values, (error, results, fields) => {
-  //     if (error) console.log(error)
-  //     console.log(JSON.stringify(results))
-  //   })
-    
-  //   conn.end()
-  // })
-  
-    conn.query(sql, values, (error, results, fields) => {
+    console.log(`Processing #[${counter}] ${data['case_name']}`)
+   
+    connection.query(sql, values, (error, results, fields) => {
+      // connection.release()
       if (error) console.log(error)
       console.log(JSON.stringify(results))
     })
-    
-    conn.end()
-  
-
-
-  // sql = mysql.format(sql,[data.case_name, data.href_note, `${data.case_links}`, data.volume])
-  // // console.log(sql)
-  // conn.query(sql, [data.case_name, data.href_note, `${data.case_links}`, data.volume], (error, results, fields) => {
-  //   if (error) return error
-  // })
-
-
-  // console.log(JSON.stringify(data))
-  // conn.end()
+  })  
 }
 
 // =================================
 
 function retrieveWikiData(){
   const wiki_prefix = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&page='
-
-
 
 }
 
@@ -153,9 +139,9 @@ execute()
 files.sort
 console.log(`Processing ${files.length} files.`)
 
-files.forEach(async (item) => {
+files.forEach((item) => {
   // console.log(`processData(${item})`)
-  await processData(item)
+  processData(item)
 })
 
 // for (let i=0; i < files.length; i++){

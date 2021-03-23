@@ -3,3 +3,7 @@ services/localconfig.js
 errors
 misc
 sc
+*.log
+test.js
+.env
+/bash_scripts
